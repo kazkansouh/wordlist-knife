@@ -91,7 +91,7 @@ def main():
 
          {}
 
-         The following lists are predefined:
+         The following lists are predefined (i.e. for use with save):
 
          {}
 
@@ -100,7 +100,12 @@ def main():
              I.processors(),
              ''
          ), functools.reduce(
-             lambda x, y : '* {}: {}\n\n'.format(y, I.preload_lists()[y]) + x,
+             lambda x, y : '* {}: {}\n\n'.format(
+                 y,
+                 I.preload_lists()[y] if type(I.preload_lists()[y]) == str else
+                 functools.reduce(
+                     lambda i, j: '{}, {}'.format(j, i),
+                     I.preload_lists()[y])) + x,
              I.preload_lists(),
              ''
          ))),

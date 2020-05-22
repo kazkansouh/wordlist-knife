@@ -60,7 +60,7 @@ __preload_lists={
 }
 
 def preload_lists():
-    return {
+    preload = {
         k: [
             v if type(v)==str else (v.pattern + ' (regex)')
             for v in __preload_lists[k]
@@ -68,9 +68,19 @@ def preload_lists():
         for k in __preload_lists
     }
 
+    for l in wk.store:
+        if not l in preload:
+            preload[l] = wk.store[l] + ' (file)'
+
+    return preload
+
 def saveload(arg):
     if arg in __preload_lists:
         return __preload_lists[arg]
+
+    if arg in wk.store:
+        return loadfile(wk.store[arg])
+
     return None
 
 __processors={
@@ -97,10 +107,16 @@ __processors={
     },
     'save': {
         'func': saveload,
-        'desc': (
-            'Pre-configured lists, e.g. save:apache. Typically for use '+
-            'with --filters as the lists define a number of regex.'
-        ),
+        'desc': '''
+
+            Pre-configured lists, e.g. save:apache.  These are either
+            hardcoded (such as apache) and typically for use with with
+            --filters, or read from the ~/.wordlist-knife file as
+            aliases for wordlist paths. This file should consist of
+            lines such as "mywordlist:/path/to/wordlist", then this
+            wordlist can be used as "save:mywordlist".
+
+        ''',
     },
 }
 

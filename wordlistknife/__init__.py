@@ -13,9 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import wordlistknife.config as C
+from pathlib import Path
+
 name = 'wordlist-knife'
 version = '0.0.1'
 encoding = 'utf8'
 strip_chars = '\n\r'
 line_end = '\n'
 word_concat = ['', '-', '_']
+store = C.ConfigFile(Path.home().joinpath('.wordlist-knife'))
