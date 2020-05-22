@@ -1,0 +1,10 @@
+env/
+build/
+dist/
+*~
+flymd.*
+*egg-info
+__pycache__
+*pyc
+#*
+.#*
