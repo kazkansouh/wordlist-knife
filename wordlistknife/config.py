@@ -15,6 +15,7 @@
 
 import sys
 import os
+import json
 
 class ConfigFile:
     """
@@ -29,24 +30,34 @@ class ConfigFile:
     def __init__(self, fname):
         try:
             with open(fname, 'r', encoding='utf8') as conf:
-                for l in [
-                        j for l in conf
-                          for j in [ l.split('//', 1)[0].strip() ]
-                          if j
-                ]:
-                    l = l.split(':', 1)
-                    if len(l) != 2:
-                        print('warning: invalid line in config file',
-                              file=sys.stderr)
-                        continue
-                    if not os.path.isfile(l[1]):
-                        print('warning: file {} in config does not exist'
-                              .format(l[1]),
-                              file=sys.stderr)
-                        continue
-                    self.__data[l[0]] = l[1]
+                self.__data = json.loads(conf.read())
+
+            for k in list(self.__data):
+                if 'wordlists' not in  self.__data[k]:
+                    print(
+                        '[W] list {} in config has no wordlists'.format(k),
+                        file=sys.stderr
+                    )
+                    del self.__data[k]
+                    continue
+                if 'filters' not in self.__data[k]:
+                    self.__data[k]['filters'] = None
+                if 'manglers' not in self.__data[k]:
+                    self.__data[k]['manglers'] = None
+
+                if 'desc' not in self.__data[k]:
+                    if len(self.__data[k]['wordlists']) == 1:
+                        self.__data[k]['desc'] = self.__data[k]['wordlists'][0]
+                    else:
+                        self.__data[k]['desc'] = 'complex user defined list'
+
         except FileNotFoundError:
             pass
+        except json.decoder.JSONDecodeError:
+            print(
+                '[W] unable to parse config file',
+                file=sys.stderr
+            )
 
     def __getitem__(self, i): return self.__data.__getitem__(i)
     def __contains__(self, i): return self.__data.__contains__(i)

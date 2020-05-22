@@ -51,7 +51,7 @@ __manglers={
 
         Regex substitution, first char is delimiter. e.g. to prefix
         php pages with "x_" the following could be used:
-        "subst:/^([^.]+\.php/x_\1.php".  ''',
+        "subst:/^([^.]+)\.php/x_\1.php".  ''',
     },
 }
 

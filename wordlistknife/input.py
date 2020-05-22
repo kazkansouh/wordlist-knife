@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import wordlistknife as wk
+import wordlistknife.builder as B
 import itertools
 import operator
 import functools
@@ -73,7 +74,7 @@ def preload_lists():
 
     for l in wk.store:
         if not l in preload:
-            preload[l] = wk.store[l] + ' (file)'
+            preload[l] = wk.store[l]['desc']
 
     return preload
 
@@ -82,7 +83,11 @@ def saveload(arg):
         return __preload_lists[arg]
 
     if arg in wk.store:
-        return loadfile(wk.store[arg])
+        return B.assemblewordlist(
+            wk.store[arg]['wordlists'],
+            wk.store[arg]['filters'],
+            wk.store[arg]['manglers'],
+        )
 
     return None
 

@@ -186,29 +186,13 @@ def main():
     if not wk.word_concat:
         raise ValueError("no concat chars for fancy specified")
 
-    wordlists = []
-    for wl in args.wordlists:
-        wordlist = I.wordlist(wl)
-        if not wordlist:
-            raise ValueError('bad wordlist argument: {}'.format(wl))
-        wordlists.append(wordlist)
-
-    filters = []
-    for f in args.filters or []:
-        filt = I.filter(f)
-        if not filt:
-            raise ValueError('bad filter argument: {}'.format(f))
-        filters.append(filt)
-
-    mangler = M.compile(args.manglers)
-
-    for w in B.subtract(B.build(wordlists, mangler=mangler),
-                        B.build(filters, wordsonly=False)):
-        sys.stdout.buffer.write(w.encode(wk.encoding))
-        sys.stdout.buffer.write(wk.line_end.encode(wk.encoding))
+    for w in B.assemblewordlist(args.wordlists, args.filters, args.manglers):
+        try:
+            # not sure if this is the best way to write directly to
+            # the stdout, but seems to work
+            sys.stdout.buffer.raw.write((w + wk.line_end).encode(wk.encoding))
+        except BrokenPipeError:
+            break
 
 if __name__ == '__main__':
-    try:
-        main()
-    except BrokenPipeError:
-        pass
+    main()

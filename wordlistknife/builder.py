@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import wordlistknife as wk
+import wordlistknife.input as I
+import wordlistknife.mangle as M
 import re
 from collections.abc import Iterable
 
@@ -57,3 +60,23 @@ def subtract(wordlist, filters):
         return False
 
     return filter(f, wordlist)
+
+def assemblewordlist(wordlists_spec, filters_spec, manglers_spec):
+    wordlists = []
+    for wl in wordlists_spec:
+        wordlist = I.wordlist(wl)
+        if not wordlist:
+            raise ValueError('bad wordlist argument: {}'.format(wl))
+        wordlists.append(wordlist)
+
+    filters = []
+    for f in filters_spec or []:
+        filt = I.filter(f)
+        if not filt:
+            raise ValueError('bad filter argument: {}'.format(f))
+        filters.append(filt)
+
+    mangler = M.compile(manglers_spec)
+
+    return subtract(build(wordlists, mangler=mangler),
+                    build(filters, wordsonly=False))
