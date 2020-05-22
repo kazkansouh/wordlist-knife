@@ -16,7 +16,7 @@
 import re
 from collections.abc import Iterable
 
-def build(wordlists, wordsonly=True):
+def build(wordlists, wordsonly=True, mangler=None):
     seen = {}
     other = []
     for wl in wordlists:
@@ -27,6 +27,8 @@ def build(wordlists, wordsonly=True):
             if type(w) != str:
                 other.append(w)
                 continue
+            if mangler:
+                w = mangler(w)
             if seen.get(w) == None:
                 yield w
                 seen[w] = 1
@@ -54,4 +56,4 @@ def subtract(wordlist, filters):
             return True
         return False
 
-    return filter(f , wordlist)
+    return filter(f, wordlist)

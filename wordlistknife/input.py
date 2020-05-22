@@ -111,14 +111,12 @@ __processors={
     'save': {
         'func': saveload,
         'desc': '''
-
             Pre-configured lists, e.g. save:apache.  These are either
             hardcoded (such as apache) and typically for use with with
             --filters, or read from the ~/.wordlist-knife file as
             aliases for wordlist paths. This file should consist of
             lines such as "mywordlist:/path/to/wordlist", then this
             wordlist can be used as "save:mywordlist".
-
         ''',
     },
 }

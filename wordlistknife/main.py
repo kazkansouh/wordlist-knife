@@ -18,6 +18,7 @@ import argparse
 import wordlistknife as wk
 import wordlistknife.input as I
 import wordlistknife.builder as B
+import wordlistknife.mangle as M
 import textwrap
 import functools
 
@@ -131,6 +132,26 @@ def main():
         metavar='FILT'
     )
     parser.add_argument(
+        '--manglers',
+        help=textwrap.dedent('''
+
+        Mangle (i.e. mutate) words. Each mangler is applied in order
+        given on command line.
+
+        The following manglers are supported:
+
+        {}
+
+        '''.format(functools.reduce(
+             lambda x, y: '* {}: {}\n\n'.format(y, M.manglers()[y]) + x,
+             M.manglers(),
+             ''
+        ))),
+        type=str,
+        nargs='+',
+        metavar='MNGL'
+    )
+    parser.add_argument(
         '--encoding',
         help='''
 
@@ -179,7 +200,10 @@ def main():
             raise ValueError('bad filter argument: {}'.format(f))
         filters.append(filt)
 
-    for w in B.subtract(B.build(wordlists), B.build(filters, wordsonly=False)):
+    mangler = M.compile(args.manglers)
+
+    for w in B.subtract(B.build(wordlists, mangler=mangler),
+                        B.build(filters, wordsonly=False)):
         sys.stdout.buffer.write(w.encode(wk.encoding))
         sys.stdout.buffer.write(wk.line_end.encode(wk.encoding))
 
