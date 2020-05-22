@@ -14,13 +14,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from collections.abc import Iterable
 
-def build(wordlists):
+def build(wordlists, wordsonly=True):
     seen = {}
-    words = []
     other = []
     for wl in wordlists:
-        if type(wl) != list and type(wl) != map:
+        if not isinstance(wl, Iterable):
             other.append(wl)
             continue
         for w in wl:
@@ -28,14 +28,27 @@ def build(wordlists):
                 other.append(w)
                 continue
             if seen.get(w) == None:
-                words.append(w)
+                yield w
                 seen[w] = 1
-    return (words, other)
+    if not wordsonly:
+        for o in other:
+            yield o
 
-def subtract(wordlist, filt_fixed, filt_regexes):
+def subtract(wordlist, filters):
+    # store fixed strings in hash map to speed up checks
+    fixed_filters = {}
+    regex_filters = []
+    for filt in filters:
+        if type(filt) == str:
+            fixed_filters[filt] = True
+        elif type(filt) == re.Pattern:
+            regex_filters.append(filt)
+        else:
+            raise TypeError('Invalid type {} in filter list'.format(type(filt)))
+
     def f(x):
-        if x not in filt_fixed:
-            for r in filt_regexes:
+        if not x in fixed_filters:
+            for r in regex_filters:
                 if r.search(x):
                     return False
             return True

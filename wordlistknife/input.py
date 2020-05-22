@@ -20,8 +20,10 @@ import functools
 import re
 
 def loadfile(arg):
-    with open(arg, 'r', encoding=wk.encoding) as wl:
-        return map(lambda x: x.strip(wk.strip_chars), wl.readlines())
+    return map(
+        lambda x: x.strip(wk.strip_chars),
+        open(arg, 'r', encoding=wk.encoding),
+    )
 
 def loadlist(arg):
     if len(arg) < 2:
@@ -39,7 +41,6 @@ def fancyword(word):
 
 def loadfancy(arg):
     srcwords = list(loadlist(arg))
-    words = []
 
     for l in range(len(srcwords)):
         for p in itertools.permutations(srcwords, l+1):
@@ -48,8 +49,7 @@ def loadfancy(arg):
                 *zip(packed_words, [wk.word_concat]*len(packed_words)))
             packed_words = list(packed_words)[:-1]
             for w in itertools.product(*packed_words):
-                words.append(functools.reduce(operator.concat, w, ""))
-    return words
+                yield functools.reduce(operator.concat, w, "")
 
 
 __preload_lists={

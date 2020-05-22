@@ -128,11 +128,17 @@ def main():
         '''),
         type=str,
         nargs='+',
-        metavar='LIST'
+        metavar='FILT'
     )
     parser.add_argument(
         '--encoding',
-        help='Specify the encoding to use for io. (default: utf8).',
+        help='''
+
+        Specify the encoding to use for io. E.g. when using
+        rockyou.txt it is required to set this to latin1. (default:
+        utf8).
+
+        ''',
         type=str,
         metavar='ENC',
         default='utf8',
@@ -165,7 +171,6 @@ def main():
         if not wordlist:
             raise ValueError('bad wordlist argument: {}'.format(wl))
         wordlists.append(wordlist)
-    wordlist = B.build(wordlists)[0]
 
     filters = []
     for f in args.filters or []:
@@ -173,10 +178,12 @@ def main():
         if not filt:
             raise ValueError('bad filter argument: {}'.format(f))
         filters.append(filt)
-    filt_fixed, filt_reg = B.build(filters)
 
-    for w in B.subtract(wordlist, filt_fixed, filt_reg):
-        print(w)
+    for w in B.subtract(B.build(wordlists), B.build(filters, wordsonly=False)):
+        print(w, end=wk.line_end)
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except BrokenPipeError:
+        pass
