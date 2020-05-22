@@ -180,7 +180,8 @@ def main():
         filters.append(filt)
 
     for w in B.subtract(B.build(wordlists), B.build(filters, wordsonly=False)):
-        print(w, end=wk.line_end)
+        sys.stdout.buffer.write(w.encode(wk.encoding))
+        sys.stdout.buffer.write(wk.line_end.encode(wk.encoding))
 
 if __name__ == '__main__':
     try:

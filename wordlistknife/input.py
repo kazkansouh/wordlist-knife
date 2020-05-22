@@ -56,7 +56,10 @@ __preload_lists={
     'apache': [
         re.compile('\\.phps$'),
         re.compile('(^|/)\\.ht'),
-    ]
+    ],
+    'comments': [
+        re.compile('^#.*$'),
+    ],
 }
 
 def preload_lists():
