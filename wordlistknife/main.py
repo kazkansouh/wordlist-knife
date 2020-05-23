@@ -115,7 +115,7 @@ def main():
         metavar='LIST'
     )
     parser.add_argument(
-        '--filters',
+        '-f', '--filters',
         help=textwrap.dedent('''
 
         Items of the filter argument are removed from the source
@@ -132,7 +132,7 @@ def main():
         metavar='FILT'
     )
     parser.add_argument(
-        '--manglers',
+        '-m', '--manglers',
         help=textwrap.dedent('''
 
         Mangle (i.e. mutate) words. Each mangler is applied in order
