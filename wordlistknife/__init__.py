@@ -17,7 +17,7 @@ import wordlistknife.config as C
 from pathlib import Path
 
 name = 'wordlist-knife'
-version = '0.0.1'
+version = '0.0.2'
 encoding = 'utf8'
 strip_chars = '\n\r'
 line_end = '\n'
