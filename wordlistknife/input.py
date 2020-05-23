@@ -55,8 +55,9 @@ def loadfancy(arg):
 
 __preload_lists={
     'apache': [
-        re.compile('\\.phps$'),
-        re.compile('(^|/)\\.ht'),
+        re.compile(r'\.phps$'),
+        re.compile(r'^\.php[34567]?$'),
+        re.compile(r'(^|/)\.ht'),
     ],
     'comments': [
         re.compile('^#.*$'),
@@ -115,14 +116,11 @@ __processors={
     },
     'save': {
         'func': saveload,
-        'desc': '''
-            Pre-configured lists, e.g. save:apache.  These are either
+        'desc': ''' Pre-configured lists, e.g. save:apache.  These are either
             hardcoded (such as apache) and typically for use with with
             --filters, or read from the ~/.wordlist-knife file as
-            aliases for wordlist paths. This file should consist of
-            lines such as "mywordlist:/path/to/wordlist", then this
-            wordlist can be used as "save:mywordlist".
-        ''',
+            aliases for wordlist paths. This file should be json, see
+            https://github.com/kazkansouh/wordlist-knife for an example.''',
     },
 }
 
