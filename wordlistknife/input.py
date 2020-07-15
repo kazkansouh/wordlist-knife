@@ -58,6 +58,7 @@ __preload_lists={
         re.compile(r'\.phps$'),
         re.compile(r'^\.php[34567]?$'),
         re.compile(r'(^|/)\.ht'),
+        re.compile(r'(^|/)\.pht(ml)?$'),
     ],
     'comments': [
         re.compile('^#.*$'),
