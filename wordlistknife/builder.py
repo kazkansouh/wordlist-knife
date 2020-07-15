@@ -49,6 +49,7 @@ def subtract(wordlist, filters):
         elif type(filt) == re.Pattern:
             regex_filters.append(filt)
         else:
+            print(filt)
             raise TypeError('Invalid type {} in filter list'.format(type(filt)))
 
     def f(x):
@@ -75,6 +76,9 @@ def assemblewordlist(wordlists_spec, filters_spec, manglers_spec):
         if not filt:
             raise ValueError('bad filter argument: {}'.format(f))
         filters.append(filt)
+
+    if wordlists == []:
+        return build(filters, wordsonly=False)
 
     mangler = M.compile(manglers_spec)
 

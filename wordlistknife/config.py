@@ -19,11 +19,7 @@ import json
 
 class ConfigFile:
     """
-    Defines a simple file format that consists of lines like:
-
-      tag:filepath
-
-    In addition, '//' are accepted as comments.
+    Parses a JSON config file.
     """
     __data = {}
 
@@ -34,12 +30,25 @@ class ConfigFile:
 
             for k in list(self.__data):
                 if 'wordlists' not in  self.__data[k]:
-                    print(
-                        '[W] list {} in config has no wordlists'.format(k),
-                        file=sys.stderr
-                    )
-                    del self.__data[k]
-                    continue
+                    if 'filters' not in self.__data[k]:
+                        print(
+                            '[W] list {} in config has no wordlists'.format(k),
+                            file=sys.stderr
+                        )
+                        del self.__data[k]
+                    else:
+                        # in the case that there is no wordlist and
+                        # only a filter defined, e.g. it could be a
+                        # list of regex'es, it has different semantics.
+                        self.__data[k]['wordlists'] = []
+                        if 'manglers' in self.__data[k]:
+                            print(
+                                ('[W] filter list {} has mangers defined, ' +
+                                 'these will be ignored').format(k),
+                                file=sys.stderr
+                            )
+                            self.__data[k]['manglers'] = None
+
                 if 'filters' not in self.__data[k]:
                     self.__data[k]['filters'] = None
                 if 'manglers' not in self.__data[k]:

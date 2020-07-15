@@ -276,10 +276,16 @@ features:
 
 ```json
 {
+  "tomcat": {
+      "filters": [
+          "regex:[\\[\\]]"
+      ]
+  },
   "dir0": {
     "wordlists": [
       "/path/to/SecLists/Discovery/Web-Content/raft-small-directories.txt",
-      "/path/to/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt"
+      "/path/to/SecLists/Discovery/Web-Content/raft-small-directories-lowercase.txt",
+      "list:|cgi-bin/"
     ],
     "desc": "raft-directories-words.txt + raft-small-directories-lowercase.txt"
   },
@@ -302,7 +308,8 @@ features:
     "filters": [
       "save:comments",
       "save:dir0",
-      "save:dir1"
+      "save:dir1",
+      "regex:%0[aAdD]"
     ],
     "desc": "directory-list-2.3-big.txt | filtered by dir0 and dir1"
   },
@@ -375,7 +382,8 @@ features:
       "save:dir2",
       "save:file0",
       "save:file1",
-      "regex:/$"
+      "regex:/$",
+      "regex:%0[aAdD]"
     ],
     "manglers": [
       "subst:/\\?.*$/",
@@ -386,7 +394,7 @@ features:
   "quick": {
     "wordlists": [
       "/path/to/SecLists/Discovery/Web-Content/quickhits.txt",
-      "list:,robots.txt"
+      "list:,robots.txt,~root/,cgi-bin/,sitemap.xml"
     ],
     "manglers": [
       "subst:|^/|"
@@ -414,6 +422,34 @@ features:
       "save:file1"
     ],
     "desc": "raft-large-files.txt + raft-large-files-lowercase.txt, i.e. file0 and file1"
+  },
+  "dns": {
+    "wordlists": [
+      "/path/to/SecLists/Discovery/DNS/subdomains-top1million-20000.txt"
+    ],
+    "filters": [
+      "list:/gc._msdcs/#www/#mail/_domainkey"
+    ]
+  },
+  "dark-1k": {
+    "wordlists": [
+      "/path/to/SecLists/Passwords/darkweb2017-top1000.txt"
+    ]
+  },
+  "dark-10k": {
+    "wordlists": [
+      "/path/to/SecLists/Passwords/darkweb2017-top10000.txt"
+    ]
+  },
+  "params": {
+    "wordlists": [
+      "/path/to/SecLists/Discovery/Web-Content/burp-parameter-names.txt"
+    ]
+  },
+  "names": {
+    "wordlists": [
+      "/path/to/SecLists/Usernames/xato-net-10-million-usernames-dup.txt"
+    ]
   }
 }
 ```
