@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Karim Kanso. All Rights Reserved.
+# Copyright (C) 2021 Karim Kanso. All Rights Reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ def main():
              ''
          ))),
         type=str,
-        nargs='+',
+        nargs='*',
         metavar='LIST'
     )
     parser.add_argument(
@@ -177,8 +177,25 @@ def main():
         help='List of chars to use for joining words for fancy. (default: -_)',
         default='-_',
     )
+    parser.add_argument(
+        '--list','-l',
+        action='store_true',
+        help='List saved wordlists.'
+    )
 
     args = parser.parse_args()
+    if args.list:
+        for l in sorted(I.preload_lists()):
+            if type(I.preload_lists()[l]) == str:
+                desc = I.preload_lists()[l]
+            else:
+                desc = ', '.join(I.preload_lists()[l])
+            print(f'* {l}: {desc}')
+        sys.exit(0)
+    elif not args.wordlists:
+        print('No wordlist specified, see --help.')
+        sys.exit(1)
+
     wk.encoding = args.encoding
     wk.word_concat = args.fancy_chars
     if not args.fancy_non_empty:
