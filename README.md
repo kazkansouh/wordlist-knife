@@ -64,6 +64,36 @@ of a number of other lists, mangled (i.e. placing words into a normal
 form, like removing leading slashes or comments), de-duplicated, and
 finally filtered by either other lists or a regex.
 
+### Typical Usage
+
+Often my first fuzz of an Apache hosted website would be executed as
+follows (where list `save:quick` correlates to a normalised version of
+SecList's `quickhists.txt`):
+
+```
+$ ffuf -w <(wlk save:quick -f save:apache) -u http://xyz/FUZZ -fc 404
+```
+
+The `-f save:apache` would filter out common files which cause issues
+with Apache servers. E.g., any file beginning with `.ht` results in a
+403 response.
+
+Depending on what was discovered from the first scan, a typical second
+scan would be as follows:
+
+```
+$ ffuf -w <(wlk save:file save:dir -f save:apache) -u http://xyz/FUZZ -fc 404
+```
+
+Or perhaps something a little more interesting:
+
+```
+$ ffuf -w <(wlk save:symbols) -u http://xyz/page.php?search=aFUZZ -mc all -fc 200
+```
+
+The definition of these saved lists can be seen in the [example config
+file](#full-example).
+
 
 ## Installation
 
@@ -277,9 +307,9 @@ features:
 ```json
 {
   "tomcat": {
-      "filters": [
-          "regex:[\\[\\]]"
-      ]
+    "filters": [
+      "regex:[\\[\\]]"
+    ]
   },
   "dir0": {
     "wordlists": [
@@ -297,6 +327,9 @@ features:
     ],
     "filters": [
       "save:dir0"
+    ],
+    "manglers": [
+      "subst:/(\t|\u001f)/"
     ],
     "desc": "raft-large-directories.txt + raft-large-directories-lowercase.txt | filtered by dir0"
   },
@@ -324,10 +357,13 @@ features:
     "wordlists": [
       "/path/to/SecLists/Discovery/Web-Content/raft-large-files.txt",
       "/path/to/SecLists/Discovery/Web-Content/raft-large-files-lowercase.txt",
-      "list:,composer.json,vendor/composer/installed.json"
+      "list:,composer.json,vendor/composer/installed.json,secret.txt,secret.csv,access.txt,access.csv"
     ],
     "filters": [
       "save:file0"
+    ],
+    "manglers": [
+      "subst:/(\t)/"
     ],
     "desc": "raft-large-files.txt + raft-large-files-lowercase.txt | filtered by file0"
   },
@@ -394,20 +430,37 @@ features:
   "quick": {
     "wordlists": [
       "/path/to/SecLists/Discovery/Web-Content/quickhits.txt",
-      "list:,robots.txt,~root/,cgi-bin/,sitemap.xml"
+      "list:,robots.txt,~root/,cgi-bin/,sitemap.xml,certsrv,ADPolicyProvider_CEP_UsernamePassword"
     ],
     "manglers": [
       "subst:|^/|"
     ],
     "desc": "quickhits.txt with leading slashes stripped"
   },
-  "words": {
+  "words0": {
+    "wordlists": [
+      "/path/to/SecLists/Discovery/Web-Content/raft-small-words.txt",
+      "/path/to/SecLists/Discovery/Web-Content/raft-small-words-lowercase.txt"
+    ],
+    "desc": "raft-small-words.txt + raft-small-words-lowercase.txt"
+  },
+  "words1": {
     "wordlists": [
       "/path/to/SecLists/Discovery/Web-Content/raft-large-words.txt",
       "/path/to/SecLists/Discovery/Web-Content/raft-large-words-lowercase.txt",
       "list:,.hg"
     ],
-    "desc": "raft-large-words.txt + raft-large-words-lowercase.txt"
+    "filters": [
+      "save:words0"
+    ],
+    "desc": "raft-large-words.txt + raft-large-words-lowercase.txt | filtered by words0"
+  },
+  "words": {
+    "wordlists": [
+      "save:words0",
+      "save:words1"
+    ],
+    "desc": "words0 + words1"
   },
   "dir": {
     "wordlists": [
@@ -431,6 +484,11 @@ features:
       "list:/gc._msdcs/#www/#mail/_domainkey"
     ]
   },
+  "dark-100": {
+    "wordlists": [
+      "/path/to/SecLists/Passwords/darkweb2017-top100.txt"
+    ]
+  },
   "dark-1k": {
     "wordlists": [
       "/path/to/SecLists/Passwords/darkweb2017-top1000.txt"
@@ -446,10 +504,67 @@ features:
       "/path/to/SecLists/Discovery/Web-Content/burp-parameter-names.txt"
     ]
   },
-  "names": {
+  "names0": {
+    "wordlists": [
+      "list:|administrator",
+      "/path/to/wordlists/unix_users",
+      "/path/to/SecLists/Usernames/Names/names.txt"
+    ],
+    "desc": "names.txt"
+  },
+  "names1": {
     "wordlists": [
       "/path/to/SecLists/Usernames/xato-net-10-million-usernames-dup.txt"
+    ],
+    "manglers": [
+      "lower"
+    ],
+    "filters": [
+      "save:names0"
+    ],
+    "desc": "xato-net-10-million-usernames-dup.txt | filtered by names0"
+  },
+  "names": {
+    "wordlists": [
+      "save:names0",
+      "save:names1"
+    ],
+    "desc": "names0 + names1"
+  },
+  "symbols": {
+    "wordlists": [
+      "/path/to/SecLists/Fuzzing/special-chars.txt"
     ]
+  },
+  "exts0": {
+    "wordlists": [
+      "/path/to/SecLists/Discovery/Web-Content/raft-small-extensions.txt"
+    ],
+    "desc": "raft-small-extensions.txt"
+  },
+  "exts1": {
+    "wordlists": [
+      "/path/to/SecLists/Discovery/Web-Content/raft-medium-extensions.txt",
+      "/path/to/SecLists/Discovery/Web-Content/raft-large-extensions.txt"
+    ],
+    "filters": [
+      "save:exts0"
+    ],
+    "desc": "raft-large-extensions.txt | filtered by exts0"
+  },
+  "exts": {
+    "wordlists": [
+      "save:exts0",
+      "save:exts1"
+    ],
+    "desc": "exts0 + exts1"
+  },
+  "windows": {
+    "wordlists": [
+      "list:,CON,PRN,AUX,NUL,COM1,COM2,COM3,COM4,COM5,COM6,COM7,COM8,COM9,LPT1,LPT2,LPT3,LPT4,LPT5,LPT6,LPT7,LPT8,LPT9",
+      "list:,con,prn,aux,nul,com1,com2,com3,com4,com5,com6,com7,com8,com9,lpt1,lpt2,lpt3,lpt4,lpt5,lpt6,lpt7,lpt8,lpt9"
+    ],
+    "desc": "special windows files, such as con, prn, nul, etc..."
   }
 }
 ```
